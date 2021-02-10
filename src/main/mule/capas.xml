@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="055b4a5f-ea3f-4f21-b892-05f76daedec2" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="9b496536-88b3-4a88-99a0-e7de026c9d5d" >
+		<http:request-connection host="localhost" port="8080" />
+	</http:request-config>
+	<http:listener-config name="HTTP_Listener_config1" doc:name="HTTP Listener config" doc:id="c46dbfc9-7187-4586-93f1-5a1325b4e71c">
+		<http:listener-connection host="0.0.0.0" port="8080" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="fe40aeef-fa66-48bb-80db-9782afc90af9" >
+		<db:mssql-connection host="localhost" instanceName="LAPTOP-MGG1KPVJ" port="8080" user="Pepe" password="1234" databaseName="Persona" />
+	</db:config>
+	<db:config name="Database_Config1" doc:name="Database Config" doc:id="c1b8d22b-76de-434e-9885-51413a6279d1" >
+		<db:mssql-connection host="0.0.0.0" port="8080" user="Pepe" password="1234" databaseName="Persona" />
+	</db:config>
+	<flow name="capasFlow" doc:id="71615476-9d4f-45a4-a90c-8dea22bc87dc" >
+		<http:listener doc:name="Listener" doc:id="ca30ce95-c237-4460-8585-f542b38fff37" config-ref="HTTP_Listener_config" path="bbdd"/>
+		<set-payload value="select * from persona" doc:name="Set Payload" doc:id="54d0db73-2a7c-4575-9393-2e656965b409" />
+		<http:request method="POST" doc:name="Request" doc:id="eda50241-be42-497d-a5ce-838bf28f4c33" config-ref="HTTP_Request_configuration" path="/prueba"/>
+	</flow>
+	<flow name="ConexionBBDD" doc:id="cae38b4a-c21b-4c40-b0a7-e453d21c7f3a" >
+		<http:listener doc:name="Listener" doc:id="2dc486b7-0ab1-4fcf-8ba1-405121722b7b" config-ref="HTTP_Listener_config1" path="/prueba"/>
+		<logger level="INFO" doc:name="Logger" doc:id="69f02838-4840-4830-b95f-15ab32a978a1" message="#[payload]"/>
+		<db:select doc:name="Select" doc:id="897b5fc6-b862-4a47-a7ba-6f4bb8281dce" config-ref="Database_Config1">
+			<db:sql ><![CDATA[#[payload]]]></db:sql>
+		</db:select>
+	</flow>
+	<flow name="capasFlow1" doc:id="b5756d17-7667-44bb-88cd-e1f13a0c1252" >
+		<ee:transform doc:name="Transform Message" doc:id="1d2d762d-4a3e-4fb7-9f39-82205dc7bfe4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	"LocalDateTime" : (|2017-10-01| ++ |23:57:59|) 
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
